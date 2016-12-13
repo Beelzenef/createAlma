@@ -65,3 +65,21 @@ select * from municipio;
 
 -- Detalles a perfilar de la tabla "municipio"
 show create table municipio;
+
+-- Eliminar base de datos "padron"
+mysqladmin -u root -p drop padron
+
+-- Crear base de datos "padron"
+mysqladmin -u root -p create padron
+
+-- Logeo con inyeccion de script (siempre que se especifique un 'use')
+mysql -u root -p < padron.sql
+
+-- Modificar un campo que es una clave ajena en otras tablas
+alter table habitante drop foreign key `habitante_ibfk_2`;
+alter table propietarios drop foreign key `propietarios_ibfk_1`;
+alter table habitante modify numid char(20) not null;
+alter table habitante modify cf char(20) not null;
+alter table propietarios modify codhabitante char(20) not null;
+alter table habitante add foreign key (cf) references habitante (numid) on update cascade;
+alter table propietarios add foreign key (codhabitante) references habitante (numid) on update cascade;
