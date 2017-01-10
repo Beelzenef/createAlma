@@ -59,3 +59,58 @@ select * from equipo where web_oficial like '%www%';
 
 -- Selecciona URLs de equipo mal escritas
 select * from equipo where web_oficial not like 'http%://%';
+
+-- Jugadores que juegan como pivots y ganen mas de 100.000
+select * from jugador where puesto = 'pivot' and salario > 10000;
+
+-- Pivots de equipos 2 y 4
+select * from jugador where puesto = 'pivot' and (equipo = 2 or equipo = 4);
+select * from jugador where puesto = 'pivot' and equipo in (2, 4);
+
+-- Contando filasselee
+select count(*) from jugador;
+select count(*) from jugador where equipo = 4;
+
+-- Jugadores del equipo 3 ordenados por apellidos
+select * from jugador where equipo = 3 order by apellido;
+
+-- Jugadores más altos de 2 metros y que ganen menos de 40.000 €
+select * from jugador where altura > 2 and salario < 40000;
+
+-- Partidos jugados en febrero
+select * from partido where month(fecha) = 2;
+
+-- Capitanes de equipo
+select * from jugador where capitan = id;
+
+-- Equipos con sitios web sin 'www'
+select * from equipo where web_oficial not like '%www%';
+
+-- Equipos con sitios web sin 'www' o directamente NULL
+select * from equipo where web_oficial not like '%www%' or where web_oficial is null;
+
+-- Equipos con sitios web que contengan '.com'
+select * from equipo where web_oficial like '%.com%';
+
+-- Equipos con sitios web que terminen en .com o tengan directorios despues de .com
+select * from equipo where web_oficial rlike '\\.com$' or web_oficial like '%.com/%';
+
+-- Equipos con sitios web con estructura 'http://x/y'
+select * from equipo where web_oficial like 'http://%/%';
+
+-- Equipos con sitios web con la estructura "http://x.y.z/abc"
+select * from equipo where web_oficial rlike '^http://[A-z0-9]+\\.[A-z0-9]+\\.[A-z0-9]+/';
+
+-- Seleccionar a los jugadores que sean más altos
+select * from jugador where altura = (select max(altura) from jugador);
+
+-- Seleccionar a los jugadores que sean más bajos
+select * from jugador where altura = (select min(altura) from jugador);
+
+-- Media de altura de jugadores
+select avg(altura) from jugador;
+select round(avg(altura),2) from jugador as alturaMedia;
+
+-- Suma de alturas de equipo 2
+select sum(altura) from jugador where equipo = 1;
+select concat(sum(altura), ' ', 'metros') as alturaTotal from jugador where equipo = 2;
