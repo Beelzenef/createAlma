@@ -101,6 +101,8 @@ select * from equipo where web_oficial like 'http://%/%';
 -- Equipos con sitios web con la estructura "http://x.y.z/abc"
 select * from equipo where web_oficial rlike '^http://[A-z0-9]+\\.[A-z0-9]+\\.[A-z0-9]+/';
 
+-- FUNCIONES DE AGREGADO
+
 -- Seleccionar a los jugadores que sean más altos
 select * from jugador where altura = (select max(altura) from jugador);
 
@@ -153,3 +155,21 @@ select * from jugador where altura = (select max(altura) from jugador);
 
 -- Fichas de los jugadores mas bajos o con valores NULL
 select * from jugador where altura = (select min(altura) from jugador) or altura is null;
+
+-- SUBCONSULTAS
+
+-- Jugadores que cobran más que Carlos Cabezas
+select nombre, apellido, salario from jugador where salario > (select salario from jugador where nombre = 'carlos' and apellido = 'cabezas');
+
+-- ¿Cuantos jugadores de cada equipo cobran más que la media de todos los salarios?
+select equipo, count(*) as nJugadores from jugador where salario > (select avg(salario) from jugador) group by equipo;
+
+-- Fichas de jugadores que ganen más que todos los jugadores del equipo 2
+select equipo, salario, nombre, apellido from jugador where salario > all (select salario from jugador where equipo = 2);
+
+-- Fichas de jugadores que ganen más que todos los jugadores del Real Madrid
+select equipo, salario, nombre, apellido from jugador where salario > all (select salario from jugador where equipo = (select id from equipo where nombre like '%madrid%'));
+
+-- Fichas de jugadores que ganen más que cualquiera de los jugadores del Barcelona
+select equipo, salario, nombre, apellido from jugador where salario > any (select salario from jugador where equipo = (select id from equipo where nombre like '%barcelona%'));
+ 
