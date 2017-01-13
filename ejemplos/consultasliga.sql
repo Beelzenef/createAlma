@@ -114,3 +114,42 @@ select round(avg(altura),2) from jugador as alturaMedia;
 -- Suma de alturas de equipo 2
 select sum(altura) from jugador where equipo = 1;
 select concat(sum(altura), ' ', 'metros') as alturaTotal from jugador where equipo = 2;
+
+-- Obtiene el salario máximo, el mínimo y la diferencia entre ellos como "diferencia salarial"
+select max(salario) as maximo, min(salario) as minimo, max(salario) - min(salario) as difSalarial from jugador;
+
+-- ¿Cuantas ciudades de equipos hay?
+select count(distinct(ciudad)) as ciudadesConEquipos from equipo;
+
+-- Sueldo medio mensual de cada jugador suponiendo un IRPF de 21%
+select avg(salario * 0.79 / 12) as salarioMedioNeto from jugador;
+
+-- Salario bruto
+select concat(nombre, ' ', apellido) as jugador, salario as salarioBruto, round(salario * 0.79 / 12, 0) as salarioNeto from jugador;
+
+-- ¿Cuantos jugadores hay en cada equipo?
+select equipo, count(*) as numeroJugadores from jugador group by equipo;
+
+-- ¿Cuantos jugadores hay que midan más de 1.90?
+select count(*) from jugador where altura > 1.90;
+
+-- ¿Cuantos jugadores hay que midan más de 1.90 en cada equipo?
+select equipo, count(*) from jugador where altura >= 1.90 group by equipo;
+
+-- ¿Cuantos jugadores hay que midan más de 1.90 en los equipos 1 (Madrid) y 2 (Barcelona)?
+ select equipo, count(*) from jugador where altura > 1.90 && equipo in (1, 2) group by equipo;
+ 
+-- Salario minimo y máximo de cada equipo
+select equipo, max(salario), min(salario) from jugador group by equipo;
+
+-- Seleccionar la media de salario de los equipos que superen de media los 80.000
+select equipo, avg(salario) as sueldoMedio from jugador group by equipo having sueldoMedio > 80000;
+
+-- ¿Cuantos partidos se jugaron en noviembre?
+select count(*) from partido where month(fecha) = 11;
+
+-- Fichas de los jugadores mas altos
+select * from jugador where altura = (select max(altura) from jugador);
+
+-- Fichas de los jugadores mas bajos o con valores NULL
+select * from jugador where altura = (select min(altura) from jugador) or altura is null;
