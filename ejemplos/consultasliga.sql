@@ -172,4 +172,35 @@ select equipo, salario, nombre, apellido from jugador where salario > all (selec
 
 -- Fichas de jugadores que ganen más que cualquiera de los jugadores del Barcelona
 select equipo, salario, nombre, apellido from jugador where salario > any (select salario from jugador where equipo = (select id from equipo where nombre like '%barcelona%'));
- 
+
+-- Datos de jugadores que jueguen en Madrid
+select * from jugador where equipo = any (select id from equipo where ciudad = 'Madrid');
+select * from jugador where equipo in (select id from equipo where ciudad = 'Madrid');
+
+-- Datos de jugadores que jueguen en Madrid y que este equipo tenga pagina web
+select * from jugador where equipo in (select id from equipo where ciudad = 'Madrid' and web_oficial is not null);
+
+-- CONSULTAS CORRELACIONADAS
+
+-- Muestra todos los jugadores siempre y cuando haya mas de 10 equipos
+select * from jugador where (select count(*) from equipo) >= 10;
+select * from jugador where exists (select count(*) from equipo having count(*) >= 10);
+
+-- Toma todos los jugadores que midan más que la media de todos los jugadores de su propio equipo:
+select * from jugador j where altura > (select avg(altura) from jugador where equipo = j.equipo);
+
+-- Obten informacion de equipos con más de 2 jugadores
+select * from equipo e where (select count(*) from jugador j where j.equipo = e.id) > 2;
+
+-- Obten todos los datos de los capitanes de cada equipo
+select * from jugador where id = capitan;
+
+-- Usando el predicado IN, obten todos los datos de los capitanes de cada equipo
+select * from jugador where id in (select capitan from jugador);
+select * from jugador where id in (select capitan from jugador where capitan is not null);
+
+-- Usando el predicado EXITS, obten todos los datos de los capitanes de cada equipo
+select * from jugador j1 where exists (select * from jugador j2 where j1.id = j2.capitan);
+
+-- Obten toda la informacion de los jugadores que no son capitanes
+select * from jugador j1 where not exists (select * from jugador j2 where j1.id = j2.capitan);
