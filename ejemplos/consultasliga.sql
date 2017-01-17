@@ -204,3 +204,36 @@ select * from jugador j1 where exists (select * from jugador j2 where j1.id = j2
 
 -- Obten toda la informacion de los jugadores que no son capitanes
 select * from jugador j1 where not exists (select * from jugador j2 where j1.id = j2.capitan);
+
+-- Obten los datos de los jugadores junto al salario medio de su equipo y la diferencia de su salario con la de su equipo
+select nombre, equipo, salario, round((select avg(salario) from jugador j2 where j1.equipo = j2.equipo),2) as salarioMedioEquipo,
+    (select avg(salario) - salario where j1.equipo = j2.equipo) from jugador j1;
+
+-- Obtener el maximo salario medio de todos los equipos 
+select max(sumaSalarios) from (select sum(salario) as sumaSalarios from jugador group by equipo) as tablaDerivada;
+
+-- Jugadores mas altos:
+select * from jugador where altura = (select max(altura) from jugador);
+
+-- ¿Cuanto suman en altura los jugadores del "CAI" y "Madrid"?
+select sum(altura) as SUMA from jugador where equipo in (select id from equipo where nombre like '%madrid%' or nombre like '%cai%');
+
+-- Datos de jugadores que hayan compitieran como locales contra equipo de Vitoria
+select id, nombre, apellido, equipo from jugador where equipo in (select elocal from partido where evisitante in (select id from equipo where ciudad like '%vitoria%'));
+
+-- Jugadores más altos que todos los jugadores más altos de todos los jugadores del 'Caja Laboral':
+select * from jugador where altura > (select max(altura) from jugador where equipo = (select id from equipo where nombre like '%caja laboral%'));
+
+-- Jugadores que cobran más que los capitanes de su propio equipos
+select * from jugador j1 where salario > (select salario from jugador j2 where j1.capitan = j2.id);
+
+-- ¿Qué equipo ha jugado más partidos?
+select t1.elocal, count(*) from select (select elocal from partido union all select evisitante from partido) as t1 group by elocal;
+
+select elocal from (select elocal, count(*) as MAX 
+    from (select elocal from partido union all select evisitante from partido) as t1 group by elocal) as t2 where t2.MAX = 
+	(select max(MAXIMO) from (select elocal, count(*) as MAXIMO from (select elocal from partido union all select evisitante from partido) as t3 group by elocal) as t4);
+	
+-- Datos de jugadores mejor y peor pagados
+select * from jugador where salario = (select max(salario) from jugador) or salario = (select min(salario) from jugador);
+select * from jugador where salario in ((select max(salario) from jugador), (select min(salario) from jugador));
