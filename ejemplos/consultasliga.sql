@@ -237,3 +237,54 @@ select elocal from (select elocal, count(*) as MAX
 -- Datos de jugadores mejor y peor pagados
 select * from jugador where salario = (select max(salario) from jugador) or salario = (select min(salario) from jugador);
 select * from jugador where salario in ((select max(salario) from jugador), (select min(salario) from jugador));
+
+-- JOINS
+
+-- Muestra todas las combinaciones posibles entre las filas de la tabla jugador (14 filas) y las de la tabla equipo (9 filas). Resultado = 14 * 9 = 126 posibilidades.
+
+     select * from jugador, equipo;
+
+-- Muestra todos los posibles partidos que podrían haber entre los equipos de la tabla equipo, eliminando los casos en los que se repite el mismo equipo para ambos bandos.
+
+     select * from equipo e1, equipo e2 where e1.id <> e2.id;
+
+--Muestra una lista con todos los jugadores de la lista jugador y el equipo al que pertenecen.
+
+     select j.id, j.nombre, j.apellido, e.nombre from jugador j, equipo e where j.equipo = e.id;
+
+-- El comando JOIN combina dos tablas siguiendo una condición especificada en una consulta en caso de que tengamos que llamar a muchas tablas, y haya que revisar muchas opciones.
+
+-- Muestra una lista con todos los jugadores de la lista jugador y el equipo al que pertenecen utilizando el comando INNER JOIN.
+
+     select j.id, j.nombre, j.apellido, e.nombre from jugador j inner join equipo e on j.equipo = e.id;
+
+-- Muestra una lista con todos los jugadores de la lista jugador y que pertenezcan al Barcelona o al Madrid utilizando el comando INNER JOIN.
+
+     select j.id, j.nombre, j.apellido, e.nombre from jugador j inner join equipo e on j.equipo = e.id and (e.nombre like '%barcelona%' or e.nombre like '%madrid%');
+
+-- Podemos aclarar aún más esta consulta, agrupando en una tabla los datos de los equipos que cumplan con las condiciones especificadas.
+
+     select j.id, j.nombre, j.apellido, e.nombre from jugador j inner join (select * from equipo where nombre like '%barcelona%' or nombre like '%madrid%') as e on
+     j.equipo = e.id;
+
+-- En este caso vamos a actualizar la tabla con algunos valores en NULL, y usaremos el comando LEFT JOIN, que es más potente que el anterior, ya que tiene un especial tratamiento para los valores NULL.
+-- Mostrar el listado de todos los equipos y de aquellos que tengan jugadores, quiénes son y cómo se llaman.
+
+     update jugador set equipo = null where id in (1,2);
+     select j.id, j.nombre, j.apellido, e.nombre from jugador j left join equipo e on j.equipo = e.id;
+
+-- Datos de cada equipo y número de partidos que han jugador como locales.
+
+     select e.id, e.nombre, count(*) nPartidosLocales from equipo e inner join partido p on p.elocal = e.id group by e.id;
+
+-- Datos de equipos que tengan más de tres jugadores dados de alta (dos formas).
+-- Volvemos a actualizar los valores de la taba jugador para que no hayan valores en NULL.
+
+     update jugador set equipo = 2 where id = 2;
+     update jugador set equipo = 1 where id = 1;
+
+ -- Solución 1: (sin exists) 
+  
+  select j.id, j.nombre, j.apellido, e.nombre from jugador j inner join equipo e on j.equipo = e.id;
+
+ --  Solución 2  (alternativa)
