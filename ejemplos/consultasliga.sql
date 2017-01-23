@@ -280,11 +280,25 @@ select * from jugador where salario in ((select max(salario) from jugador), (sel
 -- Datos de equipos que tengan más de tres jugadores dados de alta (dos formas).
 -- Volvemos a actualizar los valores de la taba jugador para que no hayan valores en NULL.
 
-     update jugador set equipo = 2 where id = 2;
-     update jugador set equipo = 1 where id = 1;
+update jugador set equipo = 2 where id = 2;
+update jugador set equipo = 1 where id = 1;
+     
+select e.id, e.nombre, count(*) as numJ from equipo e inner join jugador j on j.equipo = e.id group by e.id having count(*) > 2;
+select e.id, e.nombre from equipo e where exists (select count(*) from jugador j where j.equipo = e.id group by e.id having count(*) > 2);
+    
+-- Datos de todos los equipos y partidos que han jugado como locales
+select e.id, e.nombre, p.resultado, p.fecha, p.arbitro from equipo e join partido p on e.id = p.elocal;
 
- -- Solución 1: (sin exists) 
-  
-  select j.id, j.nombre, j.apellido, e.nombre from jugador j inner join equipo e on j.equipo = e.id;
+-- De cada equipo, obten los datos del eequipo y el máximo sueldo que tiene el mismo
+select e.id, e.nombre, max(j.salario) as mejorSueldoDeEquipo from equipo e join jugador j on j.equipo = e.id group by e.id;
 
- --  Solución 2  (alternativa)
+-- Datos de partidos con más puntos obtenidos en total
+select * from partido where substring_index(resultado, '-', 1) + substring_index(resultado, '-', -1) = (select max(substring_index(resultado, '-', 1) + substring_index(resultado, '-', -1)) from partido);
+
+-- Nombre de cada equipo y numero de victorias que ha conseguido
+select e.id, e.nombre, ((select sum(substring_index(resultado, '-', 1)) from partido p1 where p1.elocal = e.id) + (select sum(substring_index(resultado, '-', -1)) from partido p2 where p2.evisitante = e.id)) as puntosTotales from equipo e;
+select e.nombre, count(*) from equipo e join partido p on (p.elocal = e.id or e.id = p.evisitante) where (substring_index(p.resultado, '-', 1) - substring_index(resultado, '-', -1) > 0 and e.id = p.elocal) or (substring_index(p.resultado, '-', -1) - substring_index(resultado, '-', 1) > 0) group by e.id;
+
+-- Para cada equipo, nombre de su capitan
+select e.nombre, j.nombre, j.apellido from equipo e join jugador j on e.id = j.equipo and j.capitan = j.id;
+select e.nombre, j.nombre, j.apellido from equipo e join jugador j on e.id = j.equipo where j.capitan = j.id;
