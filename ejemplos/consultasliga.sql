@@ -302,3 +302,25 @@ select e.nombre, count(*) from equipo e join partido p on (p.elocal = e.id or e.
 -- Para cada equipo, nombre de su capitan
 select e.nombre, j.nombre, j.apellido from equipo e join jugador j on e.id = j.equipo and j.capitan = j.id;
 select e.nombre, j.nombre, j.apellido from equipo e join jugador j on e.id = j.equipo where j.capitan = j.id;
+
+-- Ids de equipos que hayan jugado como locales y también como visitantes
+select distinct p1.elocal from partido e1 join partido p2 on p1.elocal = p2.evisitante;
+
+-- MODIFICACIONES DE DATOS Y TABLAS
+
+create table t (c char);
+insert into t values ('d'), ('e'), ('f');
+select * from t;
+describe t;
+alter table t add primary key (c);
+describe t;
+insert into t values ('c');
+insert into t values ('c') on duplicate key update c = select concat('c', 1);
+alter table t modify c char(5);
+insert into t values ('c') on duplicate key update c = (select concat('c', 1));
+alter table t add column c1 char(10) null;
+insert into t (c) values ('d') on duplicate key update c = (select concat('d', 1));
+insert into t (c) values ('e') on duplicate key update c = (select concat('e', 1)), c1 = 'hey';
+
+-- Dada una fecha de nacimiento cualquiera, ¿podemos calcular la edad?
+select year(curdate()) - year('1993-05-05') - (right(curdate(), 5) < right('1993-05-05', 5));
