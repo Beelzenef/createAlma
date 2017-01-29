@@ -324,3 +324,10 @@ insert into t (c) values ('e') on duplicate key update c = (select concat('e', 1
 
 -- Dada una fecha de nacimiento cualquiera, ¿podemos calcular la edad?
 select year(curdate()) - year('1993-05-05') - (right(curdate(), 5) < right('1993-05-05', 5));
+
+-- Añadiendo campos virtuales
+alter table jugador add column fechaNac date default curdate();
+update jugador set fechaNac = '1993-02-02';
+
+alter table jugador add column edad int(3) as
+	(timestampdiff(year,fechaNac,curdate())) virtual);
