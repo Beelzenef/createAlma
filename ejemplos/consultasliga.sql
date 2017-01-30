@@ -372,3 +372,20 @@ alter table jugadores add primary key (id);
 select j1.nombre, j1.apellido, j1.id from jugadores j1 join jugador j2 on j1.id = j2.id group by j1.id having count(*) > 1;
 -- Buscando datos duplicados en clave pero con datos que difieren
 select j1.nombre, j1.apellido, j1.id from jugadores j1 join jugador j2 on j1.id = j2.id and j1.nombre <> j2.nombre;
+
+-- Ejemplo con JOINS
+
+-- Creacion de tablas:
+create table t1 (a char(1), b char(1));
+create table t2 (c char(1), d char(1));
+
+-- Insertando datos:
+insert into t1 values (3, 1);
+insert into t1 values (2, 4);
+insert into t1 values (5, 9);
+insert into t2 values (2, 'x');
+insert into t2 values (3, 'w');
+
+-- JOIN y LEFT JOIN:
+select tb1.a, tb1.b, tb2.c, tb2.d from t1 tb1 join t2 tb2 on tb1.a = tb2.c;
+select tb1.a, tb1.b, tb2.c, tb2.d from t1 tb1 left join t2 tb2 on tb1.a = tb2.c;
