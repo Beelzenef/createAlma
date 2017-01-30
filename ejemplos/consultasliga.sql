@@ -325,9 +325,50 @@ insert into t (c) values ('e') on duplicate key update c = (select concat('e', 1
 -- Dada una fecha de nacimiento cualquiera, ¿podemos calcular la edad?
 select year(curdate()) - year('1993-05-05') - (right(curdate(), 5) < right('1993-05-05', 5));
 
--- Añadiendo campos virtuales
-alter table jugador add column fechaNac date default curdate();
+-- Añadiendo campos virtuales, ¿es posible?
+alter table jugador add fecha_nac date after apellido;
 update jugador set fechaNac = '1993-02-02';
 
-alter table jugador add column edad int(3) as
-	(timestampdiff(year,fechaNac,curdate())) virtual);
+-- Por documentación, determinado como innecesario:
+-- alter table jugador add column edad int(3) as (timestampdiff(year,fechaNac,curdate())) virtual);
+
+-- Consulta con edad como un campo calculado
+select id, nombre, apellido, (year(curdate()) - year(fecha_nac) - (right(curdate(), 5) < right(fecha_nac, 5))) as edad from jugador;
+
+-- Creando una vista para informacion virtual, campos calculados 
+create view bdays as (select id, nombre, apellido, fecha_nac, (year(curdate()) - year(fecha_nac) - (right(curdate(), 5) < right(fecha_nac, 5))) as edad from jugador);
+show tables;
+select * from bdays;
+update bdays set fecha_nac = '1997-11-11' where id = 14;
+select * from bdays;
+insert into jugador values (15, 'Juan Manuel', 'Lobato', '1990-02-03', 1.92, 10, 'Pivot', curdate(), 10000, 5);
+select * from bdays;
+drop view bdays;
+create view bdays as (select id, concat(apellido, ', ', nombre) as nombre, fecha_nac, (year(curdate()) - year(fecha_nac) - (right(curdate(), 5) < right(fecha_nac, 5))) as edad from jugador);
+
+-- Creando indices
+desc jugador;
+create index iApellido on jugador (apellido);
+desc jugador;
+
+-- Eliminando y reconstruyendo indices
+show create table jugador;
+alter table jugador drop index `iApellido`;
+create index iApellido on jugador (apellido, nombre);
+
+-- Creando tablas a partir de consultas
+create table jugadores select * from jugador;
+describe jugadores;
+truncate jugadores;
+insert into jugadores select * from jugador;
+
+-- Reemplazando registros...
+replace into jugadores (id, nombre, apellido) values (14, 'Sitaphar', 'Savanél');
+select * from jugadores;
+-- ... que como es una tabla creada a partir de una consulta, no tiene claves primarias asignadas
+alter table jugadores add primary key (id);
+
+-- Buscando datos duplicados con datos idénticos
+select j1.nombre, j1.apellido, j1.id from jugadores j1 join jugador j2 on j1.id = j2.id group by j1.id having count(*) > 1;
+-- Buscando datos duplicados en clave pero con datos que difieren
+select j1.nombre, j1.apellido, j1.id from jugadores j1 join jugador j2 on j1.id = j2.id and j1.nombre <> j2.nombre;
