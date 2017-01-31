@@ -389,3 +389,12 @@ insert into t2 values (3, 'w');
 -- JOIN y LEFT JOIN:
 select tb1.a, tb1.b, tb2.c, tb2.d from t1 tb1 join t2 tb2 on tb1.a = tb2.c;
 select tb1.a, tb1.b, tb2.c, tb2.d from t1 tb1 left join t2 tb2 on tb1.a = tb2.c;
+
+-- REPLACE vs INSERT
+truncate table jugadores;
+desc jugadores;
+insert into jugadores select * from jugador where year(fecha_nac) <= '1990';
+alter table jugadores add primary key (id);
+desc jugadores;
+insert into jugadores (id, nombre, apellido) values (13, 'Elena', 'G');
+replace into jugadores (id, nombre, apellido) values (13, 'Elena', 'G');
