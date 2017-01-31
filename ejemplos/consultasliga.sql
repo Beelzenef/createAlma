@@ -398,3 +398,8 @@ alter table jugadores add primary key (id);
 desc jugadores;
 insert into jugadores (id, nombre, apellido) values (13, 'Elena', 'G');
 replace into jugadores (id, nombre, apellido) values (13, 'Elena', 'G');
+
+-- Exportando tablas:
+select * from jugadores into outfile '/tmp/jugador.sql';
+select * from jugador into outfile '/tmp/jugador.csv' fields terminated by ';';
+ select * from jugador into outfile '/tmp/jugadores.csv' fields terminated by ';' enclosed by '"';
