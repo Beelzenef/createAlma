@@ -403,3 +403,19 @@ replace into jugadores (id, nombre, apellido) values (13, 'Elena', 'G');
 select * from jugadores into outfile '/tmp/jugador.sql';
 select * from jugador into outfile '/tmp/jugador.csv' fields terminated by ';';
  select * from jugador into outfile '/tmp/jugadores.csv' fields terminated by ';' enclosed by '"';
+
+-- IMPORTANDO DESDE CSV
+
+-- Creando tabla objetivo de inyección
+create table personajes
+(
+  id int primary key,
+  nombre varchar(10) not null,
+  clase varchar(10) not null,
+  nivel int not null
+);
+desc personajes;
+
+-- Cargando datos
+load data local infile 'personajes.csv' into table personajes fields terminated by ';' enclosed by '"' ignore 1 lines;
+select * from personajes;
