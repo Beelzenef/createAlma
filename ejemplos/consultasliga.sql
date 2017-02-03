@@ -419,3 +419,17 @@ desc personajes;
 -- Cargando datos
 load data local infile 'personajes.csv' into table personajes fields terminated by ';' enclosed by '"' ignore 1 lines;
 select * from personajes;
+
+-- Creando tabla objetivo de inyección con un nuevo campo
+drop table if exists personajes;
+create table personajes
+(
+  id int primary key,
+  nombre varchar(10) not null,
+  clase varchar(10) not null,
+  nivel int not null,
+  fecha date not null
+);
+
+load data local infile 'personajes2.csv' into table personajes fields terminated by ';' enclosed by '"' ignore 1 lines;
+select * from personajes;
