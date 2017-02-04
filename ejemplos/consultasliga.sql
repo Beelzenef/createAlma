@@ -433,3 +433,6 @@ create table personajes
 
 load data local infile 'personajes2.csv' into table personajes fields terminated by ';' enclosed by '"' ignore 1 lines;
 select * from personajes;
+
+-- Importacion desde XML
+load xml local infile 'personajes.xml' into table personajes rows identified by personaje;
