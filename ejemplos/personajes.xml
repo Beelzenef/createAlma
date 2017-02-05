@@ -1,0 +1,14 @@
+<lista>
+  <personaje>
+  	<id>7</id>
+  	<nombre>Colophonius</nombre>
+  	<clase>Rogue</clase>
+  	<nivel>16</nivel>
+  </personaje>
+  <personaje>
+  	<id>8</id>
+  	<nombre>Harry B</nombre>
+  	<clase>Warrior</clase>
+  	<nivel>18</nivel>
+  </personaje>
+<lista>
