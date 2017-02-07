@@ -435,4 +435,14 @@ load data local infile 'personajes2.csv' into table personajes fields terminated
 select * from personajes;
 
 -- Importacion desde XML
-load xml local infile 'personajes.xml' into table personajes rows identified by personaje;
+load xml local infile 'personajes.xml' into table personajes rows identified by '<personaje>';
+
+-- Subir un 10% de salarios a los jugadores del equipo 5:
+select * from jugador where equipo = 5;
+update jugador set salario = salario * 1.10 where equipo = 5;
+
+-- Añadir 
+alter table equipo add idcapitan smallint(6) after nombre;
+desc equipo;
+select e.id, e.nombre, e.idcapitan, j.id as idjugador, j.capitan, j.equipo from equipo e join jugador j on e.id = j.equipo where j.capitan = j.id;
+update equipo e join jugador j on e.id = j.equipo set e.idcapitan = j.capitan where j.id = j.capitan;
