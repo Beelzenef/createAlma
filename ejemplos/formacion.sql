@@ -90,3 +90,15 @@ select nombre from empleado e where not exists
 
 
 -- 8) Nombre de los cursos que han elegido hacer los empleados que menos cobran
+
+
+select * from curso where curso in
+	(select curso from inscrito where empleado in
+			(select empleado from empleado where sueldo > 100));
+      
+select * from curso c left join inscrito i
+	on c.curso = i.curso where empleado is null;
+  
+select distinct e.nombre from empleado e join inscrito i
+	on e.empleado = i.empleado
+		where i.horas >= 10;
