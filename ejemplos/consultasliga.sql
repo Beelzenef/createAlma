@@ -446,3 +446,21 @@ alter table equipo add idcapitan smallint(6) after nombre;
 desc equipo;
 select e.id, e.nombre, e.idcapitan, j.id as idjugador, j.capitan, j.equipo from equipo e join jugador j on e.id = j.equipo where j.capitan = j.id;
 update equipo e join jugador j on e.id = j.equipo set e.idcapitan = j.capitan where j.id = j.capitan;
+
+
+-- Bloqueo de tablas
+
+lock tables jugador read;
+select * from jugador;
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 3);
+unlock tables;
+
+lock tables jugador write;
+select * from jugador;
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 3);
+unlock tables;
+
+lock tables jugador read local;
+select * from jugador;
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 3);
+unlock tables;
