@@ -448,7 +448,7 @@ select e.id, e.nombre, e.idcapitan, j.id as idjugador, j.capitan, j.equipo from 
 update equipo e join jugador j on e.id = j.equipo set e.idcapitan = j.capitan where j.id = j.capitan;
 
 
--- Bloqueo de tablas
+-- BLOQUEO DE TABLAS --
 
 lock tables jugador read;
 select * from jugador;
@@ -464,3 +464,47 @@ lock tables jugador read local;
 select * from jugador;
 insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 3);
 unlock tables;
+
+-- BLOQUEO DE FILAS --
+
+select id from equipo where nombre like 'unicaja';
+
+-- ... en otra sesion:
+delete from equipo where id = 7;
+
+begin;
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 7);
+commit;
+
+-- Y debido al no bloqueo de filas, no existe ese equipo, por lo que hay inconsistencias
+select * from equipo;
+
+begin;
+select * from equipo where id = 7 lock in share mode;
+
+-- ... en otra sesion:
+delete from equipo where id = 7;
+
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 7);
+commit;
+-- En la segunda sesion, o se logra el borrado cuando commit/rollback o se excede el tiempo
+
+
+-- Añadiendo una clave ajena para tablas JUGADOR con EQUIPO
+-- En otra sesion, se intentar borrar un equipo que no tiene jugadores...
+-- ... hasta que se introduce un nuevo jugador para ese equipo en una transacción
+-- El borrado de ese equipo no será posible
+
+alter table jugador add foreign key (equipo) references equipo (id) on update cascade on delete restrict;
+select * from jugador where equipo = 7;
+
+begin;
+select * from equipo where id = 7 lock in share mode;
+-- ... en otra sesion... a la espera:
+delete from equipo where id = 7;
+
+insert into jugador values (16, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 7);
+commit;
+
+-- ... de nuevo, en otra sesión, imposible borrarlo por restricción de clave ajena
+delete from equipo where id = 7;
