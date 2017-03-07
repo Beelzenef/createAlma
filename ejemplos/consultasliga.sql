@@ -467,6 +467,8 @@ unlock tables;
 
 -- BLOQUEO DE FILAS --
 
+-- SELECT LOCK IN SHARE MODE
+
 select id from equipo where nombre like 'unicaja';
 
 -- ... en otra sesion:
@@ -508,3 +510,17 @@ commit;
 
 -- ... de nuevo, en otra sesión, imposible borrarlo por restricción de clave ajena
 delete from equipo where id = 7;
+
+
+-- SELECT FOR UPDATE
+create table contador (n int default 0);
+insert into contador select max(id) from jugador;
+begin;
+select n from contador for update;
+
+-- ... en otra sesion... a la espera:
+update contador set n = n +1;
+
+insert into jugador values (17, 'Elena', 'G', '2017-02-02', 1.34, 4, 'Pivot', '2010-01-01', 100, 7);
+update contador set n = n + 1;
+commit;
