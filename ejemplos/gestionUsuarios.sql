@@ -20,3 +20,4 @@ select * from equipo;
 
 -- ¿Cómo revocar permisos?
 revoke select on liga.* from alumnito@'%';
+revoke all privileges, grant optiom from usuario@'%';
