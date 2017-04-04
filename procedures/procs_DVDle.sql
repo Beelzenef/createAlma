@@ -21,15 +21,6 @@ create procedure seleccionarUnDVD(cod smallint(6),
 				  artist varchar(30), 
 				  elPais char(2),
 				  comp varchar(40),
-				  precioDesde decimal(6,2), precioHasta decimal(6,2), 
-				  elAnio char(4), 
-drop procedure if exists seleccionarUnDVD]]
-
-create procedure seleccionarUnDVD(cod smallint(6),
-				  title varchar(40), 
-				  artist varchar(30), 
-				  elPais char(2),
-				  comp varchar(40),
 				  precioHasta decimal(6,2), 
 				  elAnio char(4),
 				  out resultado tinyint(1))
@@ -105,8 +96,14 @@ end]]
 -- INSERTAR UN DVD
 drop procedure if exists insertarDVD]]
 
-create procedure insertarDVD(cod smallint(6), title varchar(40), artist varchar(30), elPais char(2),
-			    comp varchar(40), prec decimal(6,2), elAnio char(4), out resultado tinyint(1))
+create procedure insertarDVD(cod smallint(6),
+			     title varchar(40),
+			     artist varchar(30), 
+			     elPais char(2),
+			     comp varchar(40),
+			     prec decimal(6,2),
+			     elAnio char(4),
+			     out resultado tinyint(1))
 comment 'Insertando un DVD con los datos especificados'
 
 begin
@@ -152,12 +149,39 @@ end]]
 -- MODIFICAR UN DVD
 drop procedure if exists modificarDVD]]
 
-create procedure modificarDVD()
-comment ''
+create procedure modificarDVD(cod smallint(6),
+			     title varchar(40),
+			     artist varchar(30), 
+			     elPais char(2),
+			     comp varchar(40),
+			     prec decimal(6,2),
+			     elAnio char(4),
+			     out resultado tinyint(1))
+comment 'Modificando un DVD a través de su código. Especificación de modificación de campos:
+	  Pais es una clave ajena
+	  Titulo, artista, compañía totalmente libres de modificacion
+	  Precio ¿libre?
+	  No es posible introducir años futuros
+	  Resultado 0, OK - Resultado -1, fallo encontrado'
 
 begin
 
-  select 'Modificando DVDs' as mensaje;
+ declare anioValido char(4) default null;
+  
+  if elAnio <= year(now()) then
+     set anioValido = elAnio;
+  end if;
+  
+  update dvd
+      set titulo = title,
+	  artista = artist,
+	  pais = elPais,
+	  compania = comp,
+	  precio = prec,
+	  anio = anioValido
+	    where codigo = cod;
+  
+  set resultado = 0;
 
 end]]
 
