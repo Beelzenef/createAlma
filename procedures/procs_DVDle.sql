@@ -108,10 +108,26 @@ comment 'Insertando un DVD con los datos especificados'
 
 begin
 
-  insert into dvd (codigo, titulo, artista, pais, compania, precio, anio)
-    values
-      (cod, title, artist, elPais, comp, prec, elAnio);
-      
+  -- Declaracion de excepciones posibles:
+  declare errorClavePrimaria condition for sqlstate '23000';
+  declare errorClaveAJena condition for sqlstate '23000';
+  
+  declare tuplasEncontradas int default 0;
+  declare paisEncontrado int default 0;
+  
+  -- Buscando claves ajenas y primarias para evitar errores:
+  select count(*) into tuplasEncontradas from dvd where codigo = cod;
+  select count(*) into paisEncontrado from pais where iso2 = elPais;
+ 
+  if tuplasEncontradas <> 0 then   
+    signal errorClavePrimaria set message_text = 'Codigo de DVD repetido', mysql_errno = 1062;
+  elseif paisEncontrado = 0 then
+    signal errorClaveAJena set message_text = 'Codigo de país inexistente', mysql_errno = 1452;
+  else
+    insert into dvd (codigo, titulo, artista, pais, compania, precio, anio)
+      values
+	(cod, title, artist, elPais, comp, prec, elAnio);
+  end if;
   set resultado = 0;
 
 end]]
