@@ -1,22 +1,9 @@
 delimiter ]]
 
--- SELECCIONAR TODOS LOS DVDS
-drop procedure if exists seleccionarDVDs]]
-
-create procedure seleccionarDVDs()
-comment 'Selecciona todos los DVDs existentes en tabla'
-
-begin
-
-  select codigo, titulo, artista, pais, compania, precio, anio
-    from dvd;
-
-end]]
-
 -- SELECCIONAR DVDS CON CONTROL DE PARÁMETROS
-drop procedure if exists seleccionarUnDVD]]
+drop procedure if exists selectDVD]]
 
-create procedure seleccionarUnDVD(cod smallint(6),
+create procedure selectDVD(cod smallint(6),
 				  title varchar(40), 
 				  artist varchar(30), 
 				  elPais char(2),
@@ -33,7 +20,7 @@ begin
     
     -- Para búsqueda de codigos:
     if cod is not null then
-	set condiciones = concat(' where codigo = ', cod);
+	    set condiciones = concat(' where codigo = ', cod);
     end if;
     -- Para búsqueda de titulos:
     if title is not null then
@@ -84,7 +71,6 @@ begin
 	end if;
     end if;
     
-    select @orden as "Consulta a depurar";
     set @orden = concat(@orden, condiciones);
   
     prepare sentencia from @orden;
@@ -154,7 +140,6 @@ begin
   end if;
   
   set @orden = concat(@orden, condiciones);
-  select @orden as "Consulta a depurar";
   
   prepare sentencia from @orden;
   execute sentencia;
@@ -200,6 +185,38 @@ begin
   set resultado = 0;
 
 end]]
+
+-- TRIGGERS
+
+-- Control para datos de insercion
+drop trigger if exists BI_AnadirDVD]]
+create trigger BI_AnadirDVD before insert on dvd
+	for each row
+	begin
+
+		if new.precio is null then
+			set new.precio = 0.0;
+		end if;
+		if new.anio is null then
+			set new.anio = year(curdate());
+		end if;
+	
+	end]]
+
+
+drop trigger if exists BU_ActualizarDVD]]
+create trigger BU_ActualizarDVD before update on dvd
+	for each row
+	begin
+	
+		if new.precio is null then
+			set new.precio = 0.0;
+		end if;
+		if new.anio is null then
+			set new.anio = year(curdate());
+		end if;
+		
+	end]]
 
 -- DELIMITADOR, DE VUELTA A LA NORMALIDAD
 delimiter ;
