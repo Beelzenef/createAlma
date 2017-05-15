@@ -14,6 +14,12 @@
 -- 5. AgendaArrendatario (num (PK)(FK), dnialquilado (PK)(FK))
 -- 6. AgendaDuenos (num (PK)(FK), dnidueno (PK)(FK))
 
+-- Activacion de claves ajenas:
+
+pragma foreign_keys = on;
+.mode column
+.headers on
+
 -- Borrado de tablas:
 
 drop table if exists agendaarrendatario;
@@ -39,18 +45,18 @@ create table dueno (
 create table casa (
   id integer primary key,
   direccion text not null,
-  dni text not null,
-  foreign key (dni) references dueno (dni)
+  propietario text not null,
+  foreign key (propietario) references dueno (dni)
     on update cascade
     on delete restrict
 );
 
 create table alquiler (
   casa integer,
-  dni text,
+  dni text not null,
   fechaD text not null,
   fechaH text,
-  deuda double not null,
+  deuda numeric,
   primary key (casa, dni),
   foreign key (casa) references casa (id)
     on update cascade
@@ -103,7 +109,7 @@ insert into arrendatario (dni, nombre) values
   ('19582792V', 'Jane B. Washington'),
   ('63003530K', 'Brenda A. Brown');
   
-insert into casa (id, direccion, dni) values
+insert into casa (id, direccion, propietario) values
   (1, '123 6th St.', '17189863P'),
   (2, '70 Bowman St.', 'Y9703607J'),
   (3, '71 Pilgrim Avenue', 'J0116651A'),
@@ -146,37 +152,76 @@ insert into agendadueno (num, dni) values
 
 -- 1. Toda casa tiene un único dueño. DONE!
 
--- 2. La fecha de un nuevo alquiler de vivienda no puede estar en el pasado.
--- La fecha final debe ser al menos un día posterior a la fecha inicial del alquiler.
+-- 2.1. La fecha de un nuevo alquiler de vivienda no puede estar en el pasado.
+-- 2.2. La fecha final debe ser al menos un día posterior a la fecha inicial del alquiler.
+-- 3. 	Una casa no puede estar alquilada por más de un arrendatario en el mismo período de tiempo.
+-- 4. 	Un arrendatario no puede alquilar una casa si tiene alguna deuda pendiente.
 
-drop trigger if exists fechasEnElPasado;
-create trigger fechasEnElPasado
+drop trigger if exists antesDeAlquilar;
+create trigger antesDeAlquilar
     before insert on alquiler
-    when (select new.fechaD < date('now'))
-      begin
-	select raise(abort, "ERROR: No puedes alquilar en el pasado");
+    for each row
+    begin
+        select case when new.fechaD < date('now') then
+                    raise(abort, "ERROR: No puedes alquilar en el pasado")
+                end;
+	select case when new.fechaD > new.fechaH then
+                    raise(abort, "ERROR: El periodo de alquiler no puede ser tan breve")
+                end;
+	select case when (select new.dni in (select dni from alquiler where deuda > 0)) then
+                    raise(abort, "ERROR: Los arrendatarios con deudas pendientes no pueden realizar nuevos alquileres")
+                end;
+                
+        -- Para el control de solapamiento de fechas
+        select case when exists (select * from alquier where new.fechaD < fechaD and new.fechaH >= fechaH and casa = new.casa) then
+		    raise(abort, "ERROR: La casa solicitada ya está en alquiler, fecha de inicio en solapamiento")
+		end;
+        select case when exists (select * from alquier where new.fechaD >= fechaD and new.fechaH <= fechaH and casa = new.casa) then
+		    raise(abort, "ERROR: La casa solicitada ya está en alquiler")
+		end;
       end;
-
-drop trigger if exists fechasAlquilerCoherentes;
-create trigger fechasAlquilerCoherentes
-    before insert on alquiler
-    when (select new.fechaD > new.fechaH)
-      begin
-	select raise(abort, "ERROR: Rangos de alquiler imposibles");
-      end;
-    
-
--- 3. Una casa no puede estar alquilada por más de un arrendatario en el mismo período de tiempo.
-
--- 4. Un arrendatario no puede alquilar una casa si tiene alguna deuda pendiente.
-
+      
+drop trigger if exists actualizarAlquiler;
+create trigger actualizarAlquiler
+  before update on alquiler
+  for each row
+  
+  begin
+  
+	select case when new.fechaD < date('now') then
+                    raise(abort, "ERROR: No puedes alquilar en el pasado")
+                end;
+        select case when new.fechaD > new.fechaH then
+                    raise(abort, "ERROR: El periodo de alquiler no puede ser tan breve")
+                end;
+        -- Para el control de solapamiento de fechas
+        select case when exists (select * from alquier where new.fechaD < fechaD and new.fechaH >= fechaH and casa = new.casa and old.dni != new.dni) then
+		    raise(abort, "ERROR: La casa solicitada ya está en alquiler, fecha de inicio en solapamiento")
+		end;
+        select case when exists (select * from alquier where new.fechaD >= fechaD and new.fechaH <= fechaH and casa = new.casa and old.dni != new.dni) then
+		    raise(abort, "ERROR: La casa solicitada ya está en alquiler")
+		end;
+  
+  end;
+      
 -- 5. El nombre de un arrendatario no puede contener números. Idem para el nombre de los dueños de viviendas.
 
--- Ejercicios:
-
--- 1. Obtener los arrendatarios que alquilan la casa de calle Cómpeta, 28, 1C
--- 2. ¿Cuánto dinero le deben a María Pérez?
--- 3. ¿Cuál es la deuda total para cada dueño?
--- 4. Listar todas las personas que hay dadas de alta en la base de datos.
--- 5. Indica los dueños que poseen tres o más casas (con / sin usar agregaciones)
--- 6. Listar los dueños que tengan deudores en todas sus casas.
+drop trigger if exists ArrendatarioSinNumeros;
+create trigger ArrendatarioSinNumeros
+    before insert on alquiler   
+    begin
+    
+	select case when new.nombre glob '*[1-9]*' then
+		  raise(abort, "ERROR: Los nombres de dueños no pueden contener números")
+		end;
+    end;
+    
+drop trigger if exists DuenosSinNumeros;
+create trigger DuenosSinNumeros
+    before insert on dueno   
+    begin
+    
+	select case when new.nombre glob '*[1-9]*' then
+		  raise(abort, "ERROR: Los nombres de dueños no pueden contener números")
+		end;
+    end;
