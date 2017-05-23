@@ -1,0 +1,92 @@
+-- Elena Guzman Blanco 2016/2017
+-- 5. Implementar tablas en fabrica.db
+
+-- PIEZAS (cod (PK), nombre)
+-- PROVEEDORES (id (PK), nombre)
+-- SUMINISTROS (codpieza (PK)(FK), idprov (PK)(FK), precio)
+
+
+-- Activacion de claves ajenas:
+
+pragma foreign_key = on;
+
+-- Configuracion de cliente sqlite3 
+.mode column
+.header on
+.width 5 30
+
+-- Eliminacion de tablas
+
+drop table if exists suministros;
+drop table if exists piezas;
+drop table if exists proveedores;
+
+-- Creacion de tablas:
+
+create table piezas
+(
+	cod integer,
+	nombre text,
+	primary key (cod)
+);
+
+create table proveedores (
+	id integer,
+	nombre text,
+	primary key (id)
+);
+
+create table suministros (
+	codpieza integer,
+	idprov integer,
+	precio real,
+	primary key (codpieza, idprov),
+	foreign key (codpieza) references piezas (cod)
+		on update cascade
+		on delete restrict,
+	foreign key (idprov) references proveedores (id)
+		on update cascade
+		on delete restrict
+);
+
+insert into piezas values
+	(1, 'Pack dados 10d10');
+insert into piezas values
+	(2, 'Bloc de notas Talessya');
+insert into piezas values
+	(3, 'Manual básico para Dungeons & Dragons');
+
+insert into proveedores values
+	(1, 'La marca del este');
+insert into proveedores values
+	(2, 'Nosolorol');
+insert into proveedores values
+	(3, 'Holocubierta');
+
+insert into suministros values
+	(1, 1, 15);
+insert into suministros values
+	(2, 2, 10);
+insert into suministros values
+	(3, 3, 20);
+
+-- Control de datos
+-- Precios siempres mayores que cero para inserciones y actualizaciones, tabla SUMINISTROS
+
+drop trigger if exists bu_Precios;
+create trigger bu_Precios before update on suministros
+for each row
+	begin
+		select case when new.precio <= 0 then
+			raise(abort, 'ERROR: el precio modificado es menor que 0')
+		end;
+	end;
+
+drop trigger if exists bi_anadirPrecios;
+create trigger bi_anadirPrecios before insert on suministros
+for each row
+	begin
+		select case when new.precio <= 0 then
+			raise(abort, 'ERROR: el precio introducido es menor que 0')
+		end;
+	end;
