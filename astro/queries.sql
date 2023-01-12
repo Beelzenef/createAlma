@@ -25,7 +25,7 @@ create table MOVIES(
 create table CLIENTS (
     id INTEGER PRIMARY KEY NOT NULL,
     name TEXT(100),
-    registeredat TEXT(10)
+    registeredat DATETIME
 )
 
 -- DROPPING DATA
