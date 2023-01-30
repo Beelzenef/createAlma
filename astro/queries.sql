@@ -28,14 +28,38 @@ create table CLIENTS (
     registeredat DATETIME
 )
 
+-- RENTS
+create table ONLINE_RENTS (
+    client INTEGER,
+    movie INTEGER,
+    rentat DATETIME,
+    returnedat DATETIME,
+    PRIMARY KEY (client, movie, rentat),
+    FOREIGN KEY (client) REFERENCES CLIENTS (id),
+    FOREIGN KEY (movie) REFERENCES MOVIES (id)
+)
+
+create table RENTS (
+    client INTEGER,
+    movie INTEGER,
+    rentat DATETIME,
+    returnedat DATETIME,
+    PRIMARY KEY (client, movie, rentat),
+    FOREIGN KEY (client) REFERENCES CLIENTS (id),
+    FOREIGN KEY (movie) REFERENCES MOVIES (id)
+)
+
 -- DROPPING DATA
 --drop table MOVIES
 --drop table DIRECTORS
 --drop table GENRES
 --drop table CLIENTS
+--drop table RENTS
+--drop table ONLINE_RENTS
 
 -- delete from directors
 -- delete from movies
+-- delete from clients
 
 -- INSERTING DATA
 insert into DIRECTORS values
@@ -84,13 +108,29 @@ insert into MOVIES values
     (18, 'Fight club', 1999, 3, 4) 
 
 insert into CLIENTS values
-    (1, 'Elena G Blanco', date('2000-05-05'))
+    (1, 'Elena G Blanco', date('2013-02-15')),
+    (2, 'Kenneth Branagh', date('2011-01-01')),
+    (3, 'Cate Blanchett', date('2019-11-12')),
+    (4, 'Noomi Rapace', date('1999-12-05')),
+    (5, 'Emma Stone', date('2022-07-02')),
+    (6, 'Sean Bean', date('2000-06-06')),
+    (7, 'Jake Gyllenhaal', date('2010-04-01'))
+
+insert into RENTS values
+    (1, 18, date('2018-02-16'), null),
+    (2, 13, date('2013-02-15'), date('2013-02-16'))
+
+insert into ONLINE_RENTS values
+    (7, 7, date('2022-02-15'), null),
+    (5, 2, date('2023-01-10'), date('2023-01-14'))
 
 -- GIVE ME ALL YOU GOT
 select * from MOVIES
 select * from GENRES
 select * from DIRECTORS
 select * from CLIENTS
+select * from RENTS
+select * from ONLINE_RENTS
 
 --select date('2022-13-01')
 --select date('now')

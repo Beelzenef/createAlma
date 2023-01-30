@@ -1,3 +1,10 @@
+--== PRESENTANDO DATOS
+
+select * from MOVIES
+select * from GENRES
+select * from DIRECTORS
+select * from CLIENTS
+
 --== SELECCIONANDO DATOS
 
 -- Selecciona todas las columnas de la tabla MOVIES
