@@ -71,14 +71,14 @@ select * from MOVIES where year in (2015, 2019, 2022)
 
 --== CONTAINS
 -- Selecciona las peliculas cuyo titulo contenga la palabra "love"
-
+select * from MOVIES where title LIKE '%love%' 
 
 -- Selecciona las peliculas cuyo titulo contenga la palabra "day"
-
+select * from MOVIES where title LIKE '%day%' 
 
 --== BETWEEN
--- Selecciona peliculas en un rango de fechas
-
+-- Selecciona peliculas entre 2015 y 2019
+select * from MOVIES where year BETWEEN 2015 and 2019
 
 -- GETTING SPECIFIC DATA
 
@@ -86,8 +86,8 @@ select * from MOVIES where year in (2015, 2019, 2022)
 -- Selecciona todas las peliculas de Spielberg
 select * from MOVIES where id_director = 10
 
--- Selecciona todas las peliculas de Nolan anteriores a 2010
-
+-- Selecciona todas las peliculas de Nolan anteriores a 2020
+select * from MOVIES where year < 2020 and id_director = (select id from DIRECTORS where name = 'Christopher Nolan')
 
 --== SUBQUERIES FOR GENRES
 
@@ -102,6 +102,22 @@ select * from MOVIES where id_genre = 5 and year = 2019
 
 -- Selecciona todas las peliculas del 2019 y que sean de terror (con subqueries)
 select * from MOVIES where id_genre = (select id from GENRES where name = 'Horror') and year = 2019
+
+-- Muestra el titulo de las peliculas en mayusculas
+select UPPER(title) from MOVIES
+
+-- Muestra el titulo de las peliculas en minúsculas
+select LOWER(title) from MOVIES
+
+--== IS NULL
+
+-- Selecciona las películas que aún no hayan sido devueltas
+select * from RENTALS where returnedat IS NULL
+
+-- Selecciona las películas que aún hayan sido devueltas
+select * from RENTALS where returnedat IS NOT NULL
+
+--== CONDICIONALES CONCATENADOS
 
 --== JOIN
 -- Selecciona todas las peliculas y muestra también sus géneros
