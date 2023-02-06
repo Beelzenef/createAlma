@@ -59,3 +59,30 @@ create table PARKS (
     state TEXT(100),
     country TEXT(2)
 )
+
+create table PEOPLE (
+    playerID TEXT,
+    birthYear INTEGER,
+    birthMonth INTEGER,
+    birthDay INTEGER,
+    birthCountry TEXT(3),
+    birthState TEXT(100),
+    birthCity TEXT(100),
+    deathYear INTEGER,
+    deathMonth INTEGER,
+    deathDay INTEGER,
+    deathCountry TEXT(3),
+    deathState TEXT(2),
+    deathCity TEXT(100),
+    nameFirst TEXT(100),
+    nameLast TEXT(100),
+    nameGiven TEXT(100),
+    weight INTEGER,
+    height INTEGER,
+    bats TEXT(1),
+    throws TEXT(1),
+    debut DATE,
+    finalGame DATE,
+    retroID	TEXT(10),
+    bbrefID	TEXT(10)
+)
