@@ -86,3 +86,28 @@ create table PEOPLE (
     retroID	TEXT(10),
     bbrefID	TEXT(10)
 )
+
+CREATE TABLE BATTING (
+    playerID TEXT REFERENCES PEOPLE (playerID),
+    yearID INTEGER,
+    stint INTEGER,
+    teamID TEXT REFERENCES TEAMS (teamID),
+    lgID TEXT,
+    G INTEGER,
+    AB INTEGER,
+    R INTEGER,
+    H INTEGER,
+    [2B] INTEGER,
+    [3B] INTEGER,
+    HR INTEGER,
+    RBI INTEGER,
+    SB INTEGER,
+    CS INTEGER,
+    BB INTEGER,
+    SO INTEGER,
+    IBB INTEGER,
+    HBP INTEGER,
+    SH INTEGER,
+    SF INTEGER,
+    GIDP INTEGER
+)
